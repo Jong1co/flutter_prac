@@ -19,36 +19,41 @@ class TodoController extends GetxController {
   final TodoService _todoService = TodoService();
 
   get todos => _todos;
+  get selectedDate => _selectedDate;
 
   TodoController({required TodoRepository todoRepository})
       : _todoRepository = todoRepository;
+
+  Future<void> _refetch() async {
+    // TODO: refetch하는 부분을 공통으로 분리할 수 있을 것 같음 => selectedDate에 해당하는 데이터 refetch 해야 함
+    _todos.assignAll(await _todoRepository.findAll());
+  }
 
   Future<void> toggleById(int id) async {
     Todo todo = await _todoRepository.findById(id);
     todo = _todoService.toggleTodo(todo);
     await _todoRepository.update(todo);
 
-    // refetch하는 부분을 공통으로 분리할 수 있을 것 같음
-    _todos.assignAll(await _todoRepository.findAll());
+    _refetch();
   }
 
   Future<void> onChangeDate(DateTime date) async {
     List<Todo> todos = await _todoRepository.findAllByDate(date);
-    _todos.assignAll(await _todoRepository.findAll());
+    _refetch();
   }
 
   Future<void> add(Todo todo) async {
     await _todoRepository.add(todo);
-    _todos.assignAll(await _todoRepository.findAll());
+    _refetch();
   }
 
   Future<void> remove(int id) async {
     await _todoRepository.remove(id);
-    _todos.assignAll(await _todoRepository.findAll());
+    _refetch();
   }
 
   Future<void> updateTodo(Todo todo) async {
     await _todoRepository.update(todo);
-    _todos.assignAll(await _todoRepository.findAll());
+    _refetch();
   }
 }
