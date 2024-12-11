@@ -1,7 +1,9 @@
 import 'package:ch2_todo_app/controller/todo_controller.dart';
 import 'package:ch2_todo_app/repository/memory_todo_repository.dart';
+import 'package:ch2_todo_app/util/date_tools.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatelessWidget {
   /// super.key :
@@ -20,11 +22,41 @@ class HomePage extends StatelessWidget {
 
   AppBar _appBar() {
     return AppBar(
-      title: const Text('TODO APP'),
+      title: Text(DateTools.format(todoController.selectedDate, 'yyyy.MM')),
       shape: const Border(
         bottom: BorderSide(
           color: Colors.black12,
           width: 1,
+        ),
+      ),
+    );
+  }
+
+  TableCalendar<dynamic> _calendar() {
+    return TableCalendar(
+      firstDay: DateTime.utc(2020, 10, 16),
+      lastDay: DateTime.utc(2030, 3, 14),
+      focusedDay: todoController.selectedDate,
+      selectedDayPredicate: (day) =>
+          isSameDay(day, todoController.selectedDate),
+      onDaySelected: (selectedDay, focusedDay) =>
+          todoController.onChangeDate(selectedDay),
+      onPageChanged: (focusedDay) => todoController.onChangeDate(focusedDay),
+      locale: 'ko_KR',
+      calendarStyle: const CalendarStyle(
+        todayDecoration: BoxDecoration(
+          color: Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        todayTextStyle: TextStyle(
+          color: Colors.black, // 글꼴 색상 변경
+        ),
+        selectedDecoration: BoxDecoration(
+          color: Colors.blueAccent, // 선택된 날짜의 배경색
+          shape: BoxShape.circle,
+        ),
+        selectedTextStyle: TextStyle(
+          color: Colors.white, // 선택된 날짜의 글꼴 색상
         ),
       ),
     );
@@ -44,13 +76,19 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _appBar(),
-      floatingActionButton: _floatingButton(),
-      body: const Column(
-        children: [],
-      ),
+    return GetX<TodoController>(
+      builder: (_) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: _appBar(),
+          floatingActionButton: _floatingButton(),
+          body: Column(
+            children: [
+              _calendar(),
+            ],
+          ),
+        );
+      },
     );
   }
 }
