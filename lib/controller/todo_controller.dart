@@ -13,13 +13,13 @@ import 'package:get/get.dart';
 /// 그렇게 많지 않다면 굳이 제거할 필요는 없을 것 같음.
 class TodoController extends GetxController {
   final _todos = <Todo>[].obs;
-  final _selectedDate = <DateTime>[].obs;
+  final _selectedDate = Rx<DateTime>(DateTime.now());
 
   final TodoRepository _todoRepository;
   final TodoService _todoService = TodoService();
 
-  get todos => _todos;
-  get selectedDate => _selectedDate;
+  List<Todo> get todos => _todos;
+  DateTime get selectedDate => _selectedDate.value;
 
   TodoController({required TodoRepository todoRepository})
       : _todoRepository = todoRepository;
@@ -39,6 +39,8 @@ class TodoController extends GetxController {
 
   Future<void> onChangeDate(DateTime date) async {
     List<Todo> todos = await _todoRepository.findAllByDate(date);
+    _selectedDate.value = date;
+
     _refetch();
   }
 
