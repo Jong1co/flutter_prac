@@ -1,8 +1,8 @@
 import 'package:intl/intl.dart';
 
-class DateUtils {
+class DateTools {
   static String format(DateTime date, [String newPattern = 'yyyy-MM-dd']) {
-    return DateFormat('yyyy-MM-dd').format(date);
+    return DateFormat(newPattern).format(date);
   }
 
   static DateTime parse(String date) {

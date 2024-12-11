@@ -2,8 +2,11 @@ import 'package:ch2_todo_app/screen/home_page.dart';
 import 'package:ch2_todo_app/screen/write_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+void main() async {
+  await initializeDateFormatting(); // 이거 추가해야 DateFormatting locale 한글로 설정 가능
+
   runApp(const MyApp());
 }
 

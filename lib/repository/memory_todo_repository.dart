@@ -1,6 +1,6 @@
 import 'package:ch2_todo_app/model/todo.dart';
 import 'package:ch2_todo_app/repository/todo_repository.dart';
-import 'package:ch2_todo_app/util/date_utils.dart';
+import 'package:ch2_todo_app/util/date_tools.dart';
 import 'package:get/utils.dart';
 
 class MemoryTodoRepository implements TodoRepository {
@@ -42,7 +42,7 @@ class MemoryTodoRepository implements TodoRepository {
   @override
   Future<List<Todo>> findAllByDate(DateTime date) async {
     return _todos
-        .where((todo) => DateUtils.parse(todo.createdAt).isAtSameMomentAs(date))
+        .where((todo) => DateTools.parse(todo.createdAt).isAtSameMomentAs(date))
         .toList();
   }
 
