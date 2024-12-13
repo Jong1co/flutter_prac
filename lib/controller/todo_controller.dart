@@ -58,7 +58,8 @@ class TodoController extends GetxController {
     _refetchRangeDate();
   }
 
-  Future<void> remove(int id) async {
+  Future<void> remove(int? id) async {
+    if (id == null) return;
     await _todoRepository.remove(id);
     _refetchRangeDate();
   }
