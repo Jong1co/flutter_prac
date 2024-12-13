@@ -21,9 +21,14 @@ class HomePage extends StatelessWidget {
 
   void moveToWritePage() => Get.toNamed('/write');
 
-  AppBar _appBar() {
+  AppBar _header() {
     return AppBar(
-      title: Text(DateTools.format(todoController.selectedDate, 'yyyy.MM')),
+      title: Text(
+        DateTools.format(todoController.selectedDate, 'yyyy.MM'),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       shape: const Border(
         bottom: BorderSide(
           color: Colors.black12,
@@ -86,7 +91,7 @@ class HomePage extends StatelessWidget {
       builder: (_) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: _appBar(),
+          appBar: _header(),
           floatingActionButton: _floatingButton(),
           body: Column(
             children: [

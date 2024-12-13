@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:ch2_todo_app/model/todo.dart';
 import 'package:ch2_todo_app/repository/todo_repository.dart';
 import 'package:ch2_todo_app/service/todo_service.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 /// Todo를 캐싱해 두는 것이 좋을까?
@@ -26,6 +29,12 @@ class TodoController extends GetxController {
 
   Future<void> _refetchRangeDate() async {
     _todos.assignAll(await _todoRepository.findAllByDate(_selectedDate.value));
+  }
+
+  @override
+  void onInit() async {
+    super.onInit();
+    await _refetchRangeDate();
   }
 
   Future<void> toggleById(int? id) async {
