@@ -108,34 +108,38 @@ class HomePage extends StatelessWidget {
                       color: Colors.black26,
                       borderRadius: BorderRadius.circular(999.0),
                     ),
-                    height: 10,
-                    width: 50,
+                    height: 7,
+                    width: 80,
                     // width: double.infinity,
                     padding: const EdgeInsets.all(12.0),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: Obx(() => ListView.builder(
-                      // TODO: Obx는 뭐지 ? 원래는 이거 없어도 업데이트 잘 했었는데
-                      controller: scrollController,
-                      itemCount: _.todos.length,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        Todo todo = _.todos[index];
-
-                        return _todoItem(
-                          todo: todo,
-                          toggle: () => _.toggleById(todo.id),
-                          remove: () => _.remove(todo.id),
-                        );
-                      },
-                    )),
-              ),
+              _todoList(scrollController, _),
             ],
           ),
         );
       },
+    );
+  }
+
+  Expanded _todoList(ScrollController scrollController, TodoController _) {
+    return Expanded(
+      child: Obx(() => ListView.builder(
+            // TODO: Obx는 뭐지 ? 원래는 이거 없어도 업데이트 잘 했었는데
+            controller: scrollController,
+            itemCount: _.todos.length,
+            itemBuilder: (BuildContext ctx, int index) {
+              Todo todo = _.todos[index];
+
+              return _todoItem(
+                todo: todo,
+                toggle: () => _.toggleById(todo.id),
+                remove: () => _.remove(todo.id),
+              );
+            },
+          )),
     );
   }
 
