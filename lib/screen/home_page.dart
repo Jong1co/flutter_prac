@@ -118,7 +118,7 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: Obx(() => ListView.builder(
-                      // Obx는 뭐지 ? 원래는 이거 없어도 업데이트 잘 했었는데
+                      // TODO: Obx는 뭐지 ? 원래는 이거 없어도 업데이트 잘 했었는데
                       controller: scrollController,
                       itemCount: _.todos.length,
                       itemBuilder: (BuildContext ctx, int index) {
