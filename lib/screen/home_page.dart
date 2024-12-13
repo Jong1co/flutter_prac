@@ -7,14 +7,7 @@ import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatelessWidget {
-  /// super.key :
-  /// - statelessWidget이나 StatefulWidget의 생성자에서 key를 부모 클래스(extends "xxx")의 생성자로 전달하는 것
-  ///   -> key가 뭔데?
-  ///   -> 식별자인 거야. 그런데 그렇다면 key를 내가 직접 할당할 수 있어?
-  ///
-  /// key는 Flutter 위젯 트리에서 위젯을 고유하게 식별하는 데 사용됩니다.
-  /// 이를 통해 Flutter 위젯 트리의 변경사항을 효율적으로 감지하고 업데이트 할 수 있습니다.
-  HomePage({super.key}); // key는 뭘까?
+  HomePage({super.key});
 
   final todoController =
       Get.put(TodoController(todoRepository: MemoryTodoRepository()));
@@ -38,8 +31,17 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  /// 함수형 프로그래밍에서는 암묵적 인자를 최대한 줄이는 것이 좋은 방식임(순수함수로)
-  /// 하지만 객체지향 프로그래밍에서는 뭐가 좋은지 잘 모르겠음
+  Widget _floatingButton() {
+    return FloatingActionButton(
+      onPressed: moveToWritePage,
+      shape: const CircleBorder(),
+      backgroundColor: Colors.blueAccent,
+      child: const Icon(
+        Icons.edit,
+        color: Colors.white,
+      ),
+    );
+  }
 
   TableCalendar<dynamic> _calendar(TodoController controller) {
     return TableCalendar(
@@ -72,44 +74,91 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Expanded _todoList(TodoController controller) {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: controller.todos.length,
-        itemBuilder: (BuildContext ctx, int index) {
-          Todo todo = controller.todos[index];
-          return CheckboxListTile(
-            controlAffinity: ListTileControlAffinity.leading,
-            value: todo.isDone,
-            onChanged: (value) => controller.toggleById(todo.id),
-            title: Text(
-              todo.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
+  Widget _draggableTodoList(TodoController _) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.6,
+      maxChildSize: 1.0,
+      snap: true,
+      builder: (BuildContext ctx, ScrollController scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12.0),
+                topRight: Radius.circular(12.0),
               ),
-            ),
-            subtitle: Text(todo.content),
-            secondary: IconButton(
-              icon: const Icon(Icons.delete_forever),
-              color: Colors.black45,
-              onPressed: () => controller.remove(todo.id),
-            ),
-            // dense: true, -> 이건 무슨 옵션?
-            // selected: true,
-          );
-        },
-      ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(0, -4.0),
+                  blurRadius: 50.0,
+                  spreadRadius: 1.0,
+                ),
+              ]),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(999.0),
+                    ),
+                    height: 10,
+                    width: 50,
+                    // width: double.infinity,
+                    padding: const EdgeInsets.all(12.0),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: Obx(() => ListView.builder(
+                      // Obx는 뭐지 ? 원래는 이거 없어도 업데이트 잘 했었는데
+                      controller: scrollController,
+                      itemCount: _.todos.length,
+                      itemBuilder: (BuildContext ctx, int index) {
+                        Todo todo = _.todos[index];
+
+                        return _todoItem(
+                          todo: todo,
+                          toggle: () => _.toggleById(todo.id),
+                          remove: () => _.remove(todo.id),
+                        );
+                      },
+                    )),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _floatingButton() {
-    return FloatingActionButton(
-      onPressed: moveToWritePage,
-      shape: const CircleBorder(),
-      backgroundColor: Colors.blueAccent,
-      child: const Icon(
-        Icons.edit,
-        color: Colors.white,
+  CheckboxListTile _todoItem({
+    required Todo todo,
+    required Function() toggle,
+    required Function() remove,
+  }) {
+    return CheckboxListTile(
+      controlAffinity: ListTileControlAffinity.leading,
+      value: todo.isDone,
+      onChanged: (value) => toggle(),
+      title: Text(
+        todo.title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(todo.content),
+      secondary: IconButton(
+        icon: const Icon(Icons.delete_forever),
+        color: Colors.black45,
+        onPressed: remove,
       ),
     );
   }
@@ -122,10 +171,11 @@ class HomePage extends StatelessWidget {
           backgroundColor: Colors.white,
           appBar: _header(_),
           floatingActionButton: _floatingButton(),
-          body: Column(
+          // Stack이 뭔지 찾아보기
+          body: Stack(
             children: [
               _calendar(_),
-              _todoList(_),
+              _draggableTodoList(_),
             ],
           ),
         );
