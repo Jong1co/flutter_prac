@@ -9,21 +9,21 @@ class MemoryTodoRepository implements TodoRepository {
       id: 1,
       title: '노션 작성하기',
       content: '오늘은 노션을 작성해야 한다.',
-      createdAt: '2024-01-02',
+      createdAt: '2024-12-13',
       isDone: false,
     ),
     Todo(
       id: 2,
       title: 'Flutter Todo App 만들기',
       content: '유튜브 보고 GetX사용하여 todo app 만들기',
-      createdAt: '2024-01-02',
+      createdAt: '2024-12-13',
       isDone: true,
     ),
     Todo(
       id: 3,
       title: '아침 운동하기',
       content: '헬스장 가서 유산소 운동하기',
-      createdAt: '2024-01-03',
+      createdAt: '2024-12-13',
       isDone: false,
     ),
   ];
@@ -42,7 +42,7 @@ class MemoryTodoRepository implements TodoRepository {
   @override
   Future<List<Todo>> findAllByDate(DateTime date) async {
     return _todos
-        .where((todo) => DateTools.parse(todo.createdAt).isAtSameMomentAs(date))
+        .where((todo) => todo.createdAt == DateTools.format(date))
         .toList();
   }
 
