@@ -21,10 +21,10 @@ class HomePage extends StatelessWidget {
 
   void moveToWritePage() => Get.toNamed('/write');
 
-  AppBar _header() {
+  AppBar _header(TodoController controller) {
     return AppBar(
       title: Text(
-        DateTools.format(todoController.selectedDate, 'yyyy.MM'),
+        DateTools.format(controller.selectedDate, 'yyyy.MM'),
         style: const TextStyle(
           fontWeight: FontWeight.bold,
         ),
@@ -41,17 +41,16 @@ class HomePage extends StatelessWidget {
   /// 함수형 프로그래밍에서는 암묵적 인자를 최대한 줄이는 것이 좋은 방식임(순수함수로)
   /// 하지만 객체지향 프로그래밍에서는 뭐가 좋은지 잘 모르겠음
 
-  TableCalendar<dynamic> _calendar() {
+  TableCalendar<dynamic> _calendar(TodoController controller) {
     return TableCalendar(
       headerVisible: false,
       firstDay: DateTime.utc(2020, 10, 16),
       lastDay: DateTime.utc(2030, 3, 14),
-      focusedDay: todoController.selectedDate,
-      selectedDayPredicate: (day) =>
-          isSameDay(day, todoController.selectedDate),
+      focusedDay: controller.selectedDate,
+      selectedDayPredicate: (day) => isSameDay(day, controller.selectedDate),
       onDaySelected: (selectedDay, focusedDay) =>
-          todoController.onChangeDate(selectedDay),
-      onPageChanged: (focusedDay) => todoController.onChangeDate(focusedDay),
+          controller.onChangeDate(selectedDay),
+      onPageChanged: (focusedDay) => controller.onChangeDate(focusedDay),
       locale: 'ko_KR',
       calendarStyle: const CalendarStyle(
         tablePadding: EdgeInsets.only(top: 16.0),
@@ -69,6 +68,36 @@ class HomePage extends StatelessWidget {
         selectedTextStyle: TextStyle(
           color: Colors.white, // 선택된 날짜의 글꼴 색상
         ),
+      ),
+    );
+  }
+
+  Expanded _todoList(TodoController controller) {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: controller.todos.length,
+        itemBuilder: (BuildContext ctx, int index) {
+          Todo todo = controller.todos[index];
+          return CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            value: todo.isDone,
+            onChanged: (value) => controller.toggleById(todo.id),
+            title: Text(
+              todo.title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(todo.content),
+            secondary: IconButton(
+              icon: const Icon(Icons.delete_forever),
+              color: Colors.black45,
+              onPressed: () => controller.remove(todo.id),
+            ),
+            // dense: true, -> 이건 무슨 옵션?
+            // selected: true,
+          );
+        },
       ),
     );
   }
@@ -91,26 +120,12 @@ class HomePage extends StatelessWidget {
       builder: (_) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: _header(),
+          appBar: _header(_),
           floatingActionButton: _floatingButton(),
           body: Column(
             children: [
-              _calendar(),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _.todos.length,
-                  itemBuilder: (BuildContext ctx, int index) {
-                    Todo todo = _.todos[index];
-                    return CheckboxListTile(
-                      controlAffinity: ListTileControlAffinity.leading,
-                      value: todo.isDone,
-                      onChanged: (value) => _.toggleById(todo.id),
-                      title: Text(todo.title),
-                      subtitle: Text(todo.content),
-                    );
-                  },
-                ),
-              )
+              _calendar(_),
+              _todoList(_),
             ],
           ),
         );
