@@ -54,7 +54,42 @@ class HomePage extends StatelessWidget {
           controller.onChangeDate(selectedDay),
       onPageChanged: (focusedDay) => controller.onChangeDate(focusedDay),
       locale: 'ko_KR',
+      calendarBuilders: CalendarBuilders(
+        markerBuilder: (context, day, events) {
+          String date = DateTools.format(day);
+          bool hasTodoOnDate = controller.todoMap.containsKey(date);
+          String selectedDate = DateTools.format(controller.selectedDate);
+
+          // Todo가 없는 경우, 혹은 선택한 날짜일 경우에는 marker 안 보여주도록 수정
+          if (!hasTodoOnDate || date == selectedDate) {
+            return null;
+          }
+
+          return controller.todoMap[date]! > 0
+              ? Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999.0),
+                    color: Colors.red,
+                  ),
+                )
+              : Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999.0),
+                    color: Colors.blue,
+                  ),
+                );
+        },
+      ),
       calendarStyle: const CalendarStyle(
+        markersMaxCount: 1,
+        markerSize: 4.0,
+        markerDecoration: BoxDecoration(
+          color: Colors.red,
+        ),
         tablePadding: EdgeInsets.only(top: 16.0),
         todayDecoration: BoxDecoration(
           color: Colors.transparent,
@@ -116,7 +151,36 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              _todoList(scrollController, _),
+              _title('할 일'),
+              Expanded(
+                child: Obx(() => ListView.builder(
+                      itemCount: _.ongoingTodos.length,
+                      itemBuilder: (BuildContext ctx, int index) {
+                        Todo todo = _.ongoingTodos[index];
+
+                        return _todoItem(
+                          todo: todo,
+                          toggle: () => _.toggleById(todo.id),
+                          remove: () => _.remove(todo.id),
+                        );
+                      },
+                    )),
+              ),
+              _title('완료'),
+              Expanded(
+                child: Obx(() => ListView.builder(
+                      itemCount: _.doneTodos.length,
+                      itemBuilder: (BuildContext ctx, int index) {
+                        Todo todo = _.doneTodos[index];
+
+                        return _todoItem(
+                          todo: todo,
+                          toggle: () => _.toggleById(todo.id),
+                          remove: () => _.remove(todo.id),
+                        );
+                      },
+                    )),
+              ),
             ],
           ),
         );
@@ -124,24 +188,21 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Expanded _todoList(ScrollController scrollController, TodoController _) {
-    return Expanded(
-      child: Obx(() => ListView.builder(
-            // TODO: Obx는 뭐지 ? 원래는 이거 없어도 업데이트 잘 했었는데
-            controller: scrollController,
-            itemCount: _.todos.length,
-            itemBuilder: (BuildContext ctx, int index) {
-              Todo todo = _.todos[index];
-
-              return _todoItem(
-                todo: todo,
-                toggle: () => _.toggleById(todo.id),
-                remove: () => _.remove(todo.id),
-              );
-            },
-          )),
-    );
-  }
+  Widget _title(String title) => Container(
+        padding: const EdgeInsets.only(left: 20),
+        child: Row(
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
 
   CheckboxListTile _todoItem({
     required Todo todo,

@@ -1,10 +1,13 @@
-import 'dart:ui';
-
 import 'package:ch2_todo_app/model/todo.dart';
 import 'package:ch2_todo_app/repository/todo_repository.dart';
 import 'package:ch2_todo_app/service/todo_service.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+/// 잘못 생각했음
+/// 월별 리스트 전체를 받아온 후에, 필터링해서 사용했어야 할듯..
+/// 월별 전체 리스트 조회 ->
+///   선택한 날짜의 리스트 조회 ->
+///   월별 todo가 있는지, done인지 조회
 
 /// Todo를 캐싱해 두는 것이 좋을까?
 /// -> 1. 속도 빠름 but 메모리 사용량 증가 & 데이터 불일치 문제 발생 가능
@@ -22,10 +25,30 @@ class TodoController extends GetxController {
   final TodoService _todoService = TodoService();
 
   List<Todo> get todos => _todos;
+
+  Map<String, int> get todoMap => _getTodoMap();
+
+  List<Todo> get doneTodos => _todos.where((todo) => todo.isDone).toList();
+  List<Todo> get ongoingTodos => _todos.where((todo) => !todo.isDone).toList();
+
   DateTime get selectedDate => _selectedDate.value;
 
   TodoController({required TodoRepository todoRepository})
       : _todoRepository = todoRepository;
+
+  Map<String, int> _getTodoMap() {
+    Map<String, int> map = <String, int>{};
+    for (var todo in _todos) {
+      if (todo.isDone) {
+        map.update(todo.createdAt, (count) => count, ifAbsent: () => 0);
+      } else {
+        // ifAbsent => 존재하지 않을 경우 새로운 키-값 쌍 생성
+        map.update(todo.createdAt, (count) => count + 1, ifAbsent: () => 1);
+      }
+    }
+
+    return map;
+  }
 
   Future<void> _refetchRangeDate() async {
     _todos.assignAll(await _todoRepository.findAllByDate(_selectedDate.value));
